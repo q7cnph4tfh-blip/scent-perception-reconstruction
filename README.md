@@ -1,225 +1,270 @@
-[REFERENCES.md](https://github.com/user-attachments/files/32688337/REFERENCES.md)
-# References and Scientific Background
+[README.md](https://github.com/user-attachments/files/32688345/README.md)
+# Scent Perception Reconstruction
 
-本项目是一个独立实现的 **note-level perceptual reconstruction** 原型。
+一个将香水、香膏或香氛产品的 **前调 / 中调 / 后调** 转换为更直观闻感描述的开源小工具。
 
-当前公开网页 **不会直接运行** Pyrfume、OpenPOM 或 DREAM 的模型。
+在线体验：
 
-这些公开资源主要用于：
-
-- 嗅觉科学背景
-- 感知空间设计思路
-- 数据组织方式
-- mixture perception 的研究参考
-- 后续 human sensory validation 设计
+https://q7cnph4tfh-blip.github.io/scent-perception-reconstruction/
 
 ---
 
-## 1. Pyrfume
+## 这个项目做什么？
 
-### Project
+很多香氛产品会给出：
 
-Pyrfume Public Data Archive
+- Top Notes / 前调
+- Heart Notes / 中调
+- Base Notes / 后调
 
-https://github.com/pyrfume/pyrfume-data
+但仅看到“桂花、黄杏、黄葵子、雪松”这样的香调表，仍然很难直接想象：
 
-Pyrfume 是一个公开嗅觉数据生态，涵盖：
+> 它闻起来到底是什么感觉？
 
-- molecules
-- mixtures
-- odor descriptors
-- behavioral / psychophysical measurements
-
-### 当前项目中的使用方式
-
-**Scientific / data-organization reference only**
-
-当前公开网页没有直接打包或重新分发 Pyrfume 数据集。
-
-注意：即使某个软件仓库采用开放许可证，具体上游数据集仍可能有各自的来源和使用限制，因此后续如果引入数据，需要逐项检查 provenance 与 license。
-
----
-
-## 2. Principal Odor Map
-
-Lee BK, Mayhew EJ, Sanchez-Lengeling B, et al.
-
-**A Principal Odor Map Unifies Diverse Tasks in Human Olfactory Perception.**
-
-Science. 2023;381:999–1006.
-
-DOI:
-
-https://doi.org/10.1126/science.ade4401
-
-### 与本项目的关系
-
-Principal Odor Map 提供了一个重要思路：
-
-> 气味感知可以用多维 perceptual representation 表达，而不必只归类到单一 fragrance family。
-
-当前项目的手工感知维度并不等同于 Principal Odor Map，也不声称复现其 embedding。
-
----
-
-## 3. OpenPOM
-
-OpenPOM — Open Principal Odor Map
-
-https://github.com/ARY2260/openpom
-
-OpenPOM 是一个面向 Principal Odor Map 的开源实现 / 复现项目。
-
-### 当前项目中的使用方式
-
-**Methodological reference only**
-
-当前网页：
-
-- 不执行 OpenPOM
-- 不读取 SMILES
-- 不进行分子级 odor prediction
-
-未来如果能够获得真实化学成分或分子结构信息，才考虑把这一层接入。
-
----
-
-## 4. DREAM Olfactory Mixtures Prediction Challenge
-
-Official challenge infrastructure:
-
-https://github.com/Sage-Bionetworks-Challenges/olfactory-mixtures-prediction
-
-相关公开研究仓库示例：
-
-https://github.com/Satarifard/DREAM-olfactory-mixtures-prediction-challenge
-
-### 与本项目的关系
-
-DREAM mixture work 对当前项目最重要的启发之一是：
-
-> 多种 odorants 的整体感知不一定等于各成分感知的简单线性相加。
-
-真实混合物中可能出现：
-
-- masking
-- suppression
-- synergy
-- dominance
-- emergent odor object
-
-当前版本仍然使用 Top / Heart / Base 的简单线性 baseline，因此 mixture non-linearity 属于后续研究方向。
-
----
-
-## 5. DREAM 2025 — Odor quality across concentrations and mixtures
-
-Example open-source contribution:
-
-https://github.com/Satarifard/Olfactory-Mixtures-Prediction-2025
-
-相关研究方向包括：
-
-- odor quality across concentration
-- multi-component mixture perception
-- odor descriptor prediction
-- human sensory validation
-
-### 与本项目的关系
-
-未来如果能够获得：
+这个项目尝试建立一个简单的桥梁：
 
 ```text
-ingredient identity
-+
-concentration
-+
-mixture composition
+Fragrance Notes
+        ↓
+Perceptual Features
+        ↓
+Human-readable Scent Impression
 ```
 
-就可以进一步探索：
+也就是：
+
+**香调语言 → 感知特征 → 人可以理解的闻感描述**
+
+---
+
+## 当前支持的输出
+
+### 主感知维度
+
+- 明亮感 `brightness`
+- 暖感 `warmth`
+- 湿润感 `wetness`
+- 甜润感 `sweetness`
+- 青绿感 `greenness`
+- 花香 `floral`
+- 果香 `fruity`
+- 木质感 `woody`
+- 烟熏感 `smoky`
+- 麝香 / 肌肤感 `musky`
+- 奶油感 `creamy`
+- 脂粉感 `powderiness`
+- 通透感 `airiness`
+
+### Texture Tags
+
+作为第二层材质 / 意象标签，目前包括：
+
+- 皂感 `soapy`
+- 蜡感 `waxy`
+- 树脂感 `resinous`
+- 药感 `medicinal`
+- 酒感 `boozy`
+
+### 其他输出
+
+- 前调 → 中调 → 后调的感知变化
+- 第一感受
+- 一句话“像什么”的场景描述
+- 未收录香调提示
+- 真实用户闻感反馈入口
+
+---
+
+## 脂粉感是什么？
+
+本项目把 **Powderiness / 脂粉感** 作为独立维度。
+
+它主要指：
+
+- 化妆粉 / 粉盒式气味联想
+- 干爽粉质
+- 柔雾感
+- 细腻、粉末状的嗅觉质地
+
+它不等同于：
+
+- 甜度
+- 奶油感
+- 麝香感
+
+一款香可以很甜但不粉，也可以很粉但并不甜。
+
+---
+
+## 当前模型
+
+每个已收录香调会映射到一组 0–1 的 provisional perceptual priors。
+
+当前整体 profile 使用一个简单、可复现的 baseline：
 
 ```text
-chemical composition
-↓
-mixture model
-↓
-predicted perceptual profile
+Overall Profile
+=
+0.30 × Top
++
+0.45 × Heart
++
+0.25 × Base
 ```
 
-当前公开版本还没有进入这一层。
+这个权重只是第一版工程基线，不代表真实香水的挥发动力学。
 
 ---
 
-# Attribution Policy
+## 当前版本的科学边界
 
-## 本项目独立实现的部分
+当前模型属于：
 
-当前公开版本中，以下内容由本项目独立实现：
+### NOTE-LEVEL PERCEPTUAL RECONSTRUCTION
 
-- Web interface
-- fragrance-note input workflow
-- perceptual dimensions
-- provisional note-level ontology
-- Top / Heart / Base weighting baseline
-- powderiness dimension
-- Texture Tags
-- human-readable scent scene rules
-- anonymous sensory-feedback workflow
+它不是：
 
----
+- 香水真实化学配方重建
+- GC–MS 成分预测
+- 单分子气味预测模型
+- 真实挥发动力学模拟
+- 人体感官实验的替代品
 
-## 外部科学参考
+商品页中的“桂花”“琥珀”“麝香”“水生花”等词，可能代表：
 
-当外部项目或论文用于支持以下内容时，会进行引用：
+- 天然原料
+- 单个香料分子
+- 多种分子的 accord
+- 品牌的香调描述
 
-- odor-space representation
-- psychophysics
-- mixture perception
-- human sensory validation
-- open-data / reproducibility practices
+因此当前版本只在 **香调语义 → 感知表型** 这一层进行重建。
 
 ---
 
-## Third-party code
+## 当前开发集
 
-当前公开网页没有打包或重新分发：
+第一版主要围绕 7 款香膏进行开发与测试。
 
-- Pyrfume source code
-- OpenPOM source code
-- DREAM source code
+同时支持用户自行输入其他：
 
-如果未来实际引入第三方代码，将保留相应：
+- 香水
+- 香膏
+- 扩香
+- 香氛产品
 
-- copyright
-- license
-- attribution notices
+只要能够提供较明确的：
 
----
+- 前调
+- 中调
+- 后调
 
-## Third-party data
-
-不会假定：
-
-> 软件仓库的许可证自动覆盖其引用或包含的所有上游数据。
-
-未来若引入外部数据集，会单独检查：
-
-- provenance
-- license
-- redistribution rights
-- citation requirements
+就可以尝试进行闻感重建。
 
 ---
 
-# Current Project Boundary
+## Human Feedback
 
-当前项目的公开版本主要是：
+网页结果页提供：
 
-> fragrance-note semantic reconstruction
+> 我闻过实物，匿名提交真实反馈
+
+真实反馈用于比较：
+
+```text
+Model Prediction
+vs.
+Human Perception
+```
+
+当前不会因为单个用户反馈立即修改模型。
+
+计划是在积累一定数量真实评价后，再进行批量分析，例如：
+
+- predicted vs observed
+- human median
+- inter-user disagreement
+- systematic over-estimation / under-estimation
+
+然后再更新下一版本。
+
+---
+
+## Privacy
+
+反馈问卷用于匿名模型校准。
+
+网页本身不主动要求：
+
+- 姓名
+- 手机号
+- 邮箱
+- 精确位置
+- 其他直接身份信息
+
+也请不要在自由文本反馈中填写个人敏感信息。
+
+---
+
+## 开放与可复现
+
+当前项目希望保持：
+
+- 方法透明
+- 参数可解释
+- 版本可追踪
+- 引用可追溯
+- 用户反馈与模型更新分开
+
+后续如果根据真实反馈修改 ontology 或权重，会通过版本记录说明。
+
+---
+
+## Scientific References
+
+本项目的科学设计受到公开嗅觉研究与开源项目启发，包括：
+
+- Pyrfume
+- Principal Odor Map
+- OpenPOM
+- DREAM Olfactory Mixtures Prediction Challenge
+
+详见：
+
+`REFERENCES.md`
+
+---
+
+## Version
+
+Current public prototype:
+
+`v0.7`
+
+---
+
+## Status
+
+```text
+Public Web App        ✓
+7-product DEV set     ✓
+Note ontology         provisional
+Texture Tags          ✓
+Human feedback        active
+Chemical model        not implemented
+Mixture ML model      not implemented
+Sensory calibration   collecting data
+```
+
+---
+
+## Disclaimer
+
+当前结果应理解为：
+
+> an interpretable perceptual estimate based on fragrance-note descriptions
 
 而不是：
 
-> chemical odor prediction
+> an experimentally verified reconstruction of the actual fragrance formulation
 
-因此目前引用这些项目主要用于科学背景、方法设计与后续验证路线，而不是声明“本网页正在运行这些模型”。
+随着真实用户反馈增加，当前 ontology、感知参数和时间权重会逐步校准。
