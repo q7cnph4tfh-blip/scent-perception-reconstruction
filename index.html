@@ -46,6 +46,14 @@ button:active{transform:scale(.99)}
 .analogy{font-family:"Songti SC","STSong",serif;font-size:18px;line-height:1.9;padding:18px 20px;border-left:3px solid #7d746b;background:#faf8f4;border-radius:0 14px 14px 0}
 .meta{font-size:12px;color:#91897f;line-height:1.7;margin-top:18px}
 .warn{margin-top:12px;padding:10px 12px;background:#fff4da;border-radius:12px;font-size:13px}
+
+.feedback-cta{margin-top:28px;padding:20px;border-radius:18px;background:#f7f2eb;border:1px solid #e8ddd0}
+.feedback-cta h3{margin:0 0 8px;font-family:"Songti SC","STSong",serif;font-weight:500;font-size:18px}
+.feedback-cta p{margin:0 0 14px;color:#6f685f;font-size:13px;line-height:1.75}
+.feedback-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:#211f1c;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:600}
+.feedback-link:hover{box-shadow:0 8px 22px rgba(0,0,0,.12);transform:translateY(-1px)}
+.privacy-note{margin-top:10px;color:#91897f;font-size:11px;line-height:1.65}
+
 @media(max-width:820px){.layout{grid-template-columns:1fr}.input-card{position:static}.profile-grid{grid-template-columns:1fr}.timeline{grid-template-columns:1fr}h1{font-size:36px}}
 </style>
 </head>
@@ -64,6 +72,9 @@ button:active{transform:scale(.99)}
     <label>中调 Heart</label><input id="heartNotes" value="桂花、黄杏">
     <label>后调 Base</label><input id="baseNotes" value="黄葵子、雪松">
     <button type="button" onclick="generateScentFeedback()">生成闻感反馈</button>
+    <div style="margin-top:10px;text-align:center">
+      <a href="https://www.wjx.top/vm/h4Fsb6n.aspx#" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#81786f;text-decoration:none">已闻过实物？匿名提交反馈 ↗</a>
+    </div>
   </div>
 
   <div class="card result-card" id="result">
@@ -192,6 +203,12 @@ function generateScentFeedback(){
 
       <div class="section"><h3>Texture Tags · 第二层材质标签</h3><div class="texture-box">${buildTextureTags(tx)}</div></div>
       <div class="section"><h3>一句话像什么</h3><div class="analogy">${makeAnalogy(o,strong,tx)}</div></div>
+      <div class="feedback-cta">
+        <h3>你闻过实物吗？</h3>
+        <p>如果你闻过这款香气，可以用真实闻感帮助我们校准模型。</p>
+        <a class="feedback-link" href="https://www.wjx.top/vm/h4Fsb6n.aspx#" target="_blank" rel="noopener noreferrer">我闻过实物，匿名提交真实反馈 ↗</a>
+        <div class="privacy-note">反馈仅用于匿名聚合分析和模型改进。请勿在自由文本中填写姓名、手机号、邮箱等个人敏感信息。</div>
+      </div>
       <div class="meta">词库覆盖率：${Math.round(coverage*100)}%。当前结果用于帮助理解香调感知，不代表真实成分浓度。</div>
       ${unknown.length?`<div class="warn">未收录香调：${unknown.join("、")}</div>`:""}
     `;
