@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>闻香 · 香调感知重建器</title>
+<style>
+:root {
+ --bg:#f5f1ea; --card:#fffdf9; --ink:#1e1c19; --muted:#777067; --line:#e5ddd2;
+ --soft:#f3eee7; --soft2:#f8f4ef; --tag:#efe8df; --powder:#eadde3;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#faf8f4,#f2ede6);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink)}
+.wrap{max-width:1120px;margin:auto;padding:48px 20px 80px}
+.kicker{font-family:Georgia,serif;font-style:italic;color:#8a8278;font-size:14px;letter-spacing:.08em}
+h1{font-family:"Songti SC","STSong",serif;font-size:44px;font-weight:500;margin:7px 0 10px}
+.intro{max-width:760px;line-height:1.85;color:var(--muted);margin:0 0 28px}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start}
+.card{background:rgba(255,253,249,.96);border:1px solid var(--line);border-radius:24px;box-shadow:0 16px 46px rgba(65,52,38,.06)}
+.input-card{padding:24px;position:sticky;top:18px}
+label{display:block;color:#6f695f;font-size:13px;margin:15px 0 7px}
+input,select{width:100%;border:1px solid #ddd5ca;background:#fffefa;border-radius:13px;padding:13px 14px;font-size:15px;outline:none}
+input:focus,select:focus{border-color:#9c9287;box-shadow:0 0 0 3px rgba(156,146,135,.10)}
+button{width:100%;padding:14px 16px;margin-top:20px;border:0;border-radius:13px;background:#22201d;color:#fff;font-size:15px;cursor:pointer}
+button:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.tiny{font-size:12px;color:#928a80;line-height:1.7;margin-top:14px}
+.result-card{padding:30px}
+.hero{padding:28px;border-radius:20px;background:linear-gradient(135deg,#efe9df 0%,#faf7f1 60%,#eee4e8 100%);border:1px solid #eee6dd}
+.hero-title{font-family:"Songti SC","STSong",serif;font-size:31px;margin:0 0 12px;font-weight:500}
+.hero-copy{font-size:16px;line-height:1.85;color:#4f4a43;margin:0}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.badge{background:rgba(255,255,255,.7);border:1px solid rgba(120,110,100,.13);padding:7px 10px;border-radius:999px;font-size:12px}
+.section{margin-top:26px}
+.section h3{font-family:"Songti SC","STSong",serif;font-weight:500;font-size:18px;margin:0 0 13px}
+.first{font-size:16px;line-height:1.9;color:#383530}
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.phase{background:#faf7f2;border:1px solid #ece5dc;border-radius:16px;padding:15px;min-height:92px;line-height:1.6}
+.phase .en{font-family:Georgia,serif;font-style:italic;font-size:13px;color:#8a8278}
+.phase b{display:block;margin:3px 0 5px;font-size:14px}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+.bar{display:grid;grid-template-columns:76px 1fr 34px;gap:9px;align-items:center;font-size:13px}
+.track{height:8px;background:#eee9e1;border-radius:999px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#8b8379,#38332e);border-radius:999px}
+.bar.powder .fill{background:linear-gradient(90deg,#d7c3cc,#8f737e)}
+.bar.powder .label{font-weight:600}
+.powder-note{margin-top:10px;padding:12px 14px;border-radius:14px;background:#f7f0f3;border:1px solid #eadce2;color:#66545c;line-height:1.7;font-size:13px}
+.texture-box{background:#faf7f2;border:1px solid #ece5dc;border-radius:16px;padding:16px}
+.texture-tags{display:flex;flex-wrap:wrap;gap:10px}
+.texture-tag{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:999px;background:var(--tag);font-size:13px;border:1px solid #e3d9ce}
+.texture-tag strong{font-weight:600}
+.texture-tag span{font-size:11px;color:#857b70}
+.texture-empty{color:#8e857c;font-size:13px;line-height:1.7}
+.analogy{font-family:"Songti SC","STSong",serif;font-size:18px;line-height:1.9;padding:18px 20px;border-left:3px solid #7d746b;background:#faf8f4;border-radius:0 14px 14px 0}
+.meta{font-size:12px;color:#91897f;line-height:1.7;margin-top:18px}
+.warn{margin-top:12px;padding:10px 12px;background:#fff4da;border-radius:12px;font-size:13px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.input-card{position:static}.profile-grid{grid-template-columns:1fr}.timeline{grid-template-columns:1fr}h1{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="kicker">Scent Perception Reconstruction</div>
+ <h1>闻香</h1>
+ <p class="intro">把前调、中调、后调翻译成更容易理解的感知语言：冷暖、干湿、明暗、脂粉感、材质与场景。这里重建的是“闻感印象”，不是化学配方。</p>
+
+ <div class="layout">
+  <div class="card input-card">
+   <label>快速选择示例</label>
+   <select id="preset"><option value="">自定义输入</option></select>
+   <label>产品名称</label><input id="name" value="走到桂花落肩头">
+   <label>前调 Top</label><input id="top" value="绿叶、柑橘">
+   <label>中调 Heart</label><input id="heart" value="桂花、黄杏">
+   <label>后调 Base</label><input id="base" value="黄葵子、雪松">
+   <div id="runtimeStatus" style="margin:12px 0 0;padding:9px 11px;border-radius:10px;background:#fff3d6;color:#725d2f;font-size:12px;">如果这里一直显示黄色提示，说明当前预览器禁止运行 JavaScript。请下载 HTML 后用 Chrome/Safari 打开。</div><button id="generateBtn" type="button" onclick="window.__scentRun && window.__scentRun()">生成闻感反馈</button>
+   <div class="tiny">脂粉感是类似粉盒、化妆粉、干爽柔雾的粉质感；Texture Tags 则单独提示皂感、蜡感、树脂感、药感、酒感，不挤进主感知维度。</div>
+  </div>
+
+  <div class="card result-card" id="result"></div>
+ </div>
+</div>
+
+<script>
+(function(){
+const dims=["brightness", "warmth", "wetness", "sweetness", "greenness", "floral", "fruity", "woody", "smoky", "musky", "creamy", "powderiness", "airiness"];
+const textureDims=["soapy", "waxy", "resinous", "medicinal", "boozy"];
+const O={"绿叶": [0.72, 0.22, 0.52, 0.08, 0.95, 0.05, 0.08, 0.08, 0, 0, 0, 0.03, 0.72, 0.04, 0.03, 0.02, 0.05, 0.0], "杏子": [0.62, 0.66, 0.45, 0.72, 0.08, 0.08, 0.96, 0, 0, 0, 0.28, 0.18, 0.34, 0.03, 0.04, 0.0, 0.0, 0.02], "栀子": [0.56, 0.69, 0.56, 0.58, 0, 0.97, 0.08, 0, 0, 0, 0.58, 0.28, 0.28, 0.16, 0.1, 0.04, 0.01, 0.0], "茉莉": [0.6, 0.64, 0.49, 0.47, 0, 0.96, 0.05, 0, 0, 0, 0.2, 0.18, 0.42, 0.14, 0.06, 0.03, 0.02, 0.0], "奶油": [0.28, 0.72, 0.28, 0.72, 0, 0, 0, 0, 0, 0, 0.98, 0.24, 0.1, 0.03, 0.14, 0.01, 0.0, 0.0], "香草": [0.28, 0.82, 0.18, 0.9, 0, 0, 0, 0.12, 0, 0, 0.6, 0.48, 0.12, 0.05, 0.1, 0.1, 0.0, 0.03], "麝香": [0.45, 0.62, 0.22, 0.28, 0, 0, 0, 0, 0, 0.98, 0.3, 0.58, 0.42, 0.18, 0.08, 0.03, 0.0, 0.0], "木兰": [0.68, 0.46, 0.44, 0.3, 0.32, 0.86, 0, 0, 0, 0, 0, 0.16, 0.68, 0.22, 0.05, 0.02, 0.0, 0.0], "绿茶": [0.68, 0.28, 0.48, 0.06, 0.88, 0, 0, 0.16, 0, 0, 0, 0.05, 0.82, 0.03, 0.01, 0.0, 0.06, 0.0], "水生花": [0.74, 0.18, 0.96, 0.12, 0, 0.58, 0, 0, 0, 0, 0, 0.03, 0.96, 0.24, 0.03, 0.0, 0.01, 0.0], "木香": [0.34, 0.48, 0.18, 0.08, 0, 0, 0, 0.92, 0, 0, 0, 0.1, 0.28, 0.02, 0.03, 0.18, 0.02, 0.0], "苔香": [0.22, 0.3, 0.58, 0.05, 0.62, 0, 0, 0.52, 0, 0, 0, 0.08, 0.22, 0.02, 0.03, 0.1, 0.08, 0.0], "雪松": [0.38, 0.36, 0.1, 0.06, 0.16, 0, 0, 0.98, 0.1, 0, 0, 0.08, 0.34, 0.01, 0.02, 0.2, 0.02, 0.0], "芳香": [0.56, 0.35, 0.25, 0.1, 0.55, 0.2, 0, 0.15, 0, 0, 0, 0.08, 0.7, 0.05, 0.02, 0.04, 0.12, 0.0], "绿意": [0.66, 0.24, 0.42, 0.06, 0.92, 0, 0, 0, 0, 0, 0, 0.03, 0.78, 0.03, 0.01, 0.0, 0.05, 0.0], "柑橘调": [0.94, 0.3, 0.46, 0.3, 0.2, 0, 0.72, 0, 0, 0, 0, 0.02, 0.92, 0.05, 0.01, 0.0, 0.02, 0.02], "花香": [0.62, 0.52, 0.42, 0.4, 0, 0.95, 0, 0, 0, 0, 0, 0.28, 0.58, 0.15, 0.05, 0.02, 0.0, 0.0], "松木": [0.36, 0.24, 0.14, 0.03, 0.55, 0, 0, 0.9, 0.08, 0, 0, 0.04, 0.44, 0.01, 0.02, 0.28, 0.07, 0.0], "木质": [0.3, 0.46, 0.12, 0.08, 0, 0, 0, 0.95, 0, 0, 0, 0.08, 0.25, 0.01, 0.03, 0.24, 0.02, 0.0], "琥珀": [0.25, 0.92, 0.12, 0.58, 0, 0, 0, 0.45, 0.12, 0, 0.25, 0.22, 0.1, 0.01, 0.05, 0.75, 0.02, 0.02], "柠檬": [0.98, 0.2, 0.56, 0.22, 0.15, 0, 0.76, 0, 0, 0, 0, 0.01, 0.96, 0.06, 0.0, 0.0, 0.03, 0.01], "罗勒": [0.58, 0.32, 0.35, 0.03, 0.92, 0, 0, 0.08, 0, 0, 0, 0.02, 0.65, 0.01, 0.0, 0.01, 0.38, 0.0], "丁香": [0.3, 0.88, 0.12, 0.28, 0, 0.18, 0, 0.3, 0.15, 0, 0, 0.26, 0.12, 0.01, 0.02, 0.18, 0.45, 0.0], "蓝莓": [0.48, 0.5, 0.62, 0.76, 0, 0, 0.95, 0, 0, 0, 0, 0.12, 0.28, 0.0, 0.02, 0.0, 0.0, 0.18], "玫瑰": [0.62, 0.56, 0.48, 0.44, 0.14, 0.98, 0, 0, 0, 0, 0, 0.42, 0.5, 0.12, 0.05, 0.03, 0.0, 0.0], "薰衣草": [0.58, 0.34, 0.24, 0.22, 0.46, 0.68, 0, 0.12, 0, 0, 0, 0.3, 0.68, 0.2, 0.03, 0.04, 0.22, 0.0], "广藿香": [0.18, 0.5, 0.42, 0.1, 0.4, 0, 0, 0.82, 0.2, 0, 0, 0.08, 0.12, 0.01, 0.02, 0.36, 0.16, 0.0], "黑香豆": [0.24, 0.86, 0.1, 0.82, 0, 0, 0, 0.28, 0.12, 0, 0.55, 0.62, 0.1, 0.02, 0.06, 0.22, 0.01, 0.03], "柑橘": [0.94, 0.3, 0.48, 0.32, 0.18, 0, 0.78, 0, 0, 0, 0, 0.02, 0.92, 0.05, 0.01, 0.0, 0.02, 0.03], "葡萄": [0.58, 0.48, 0.7, 0.78, 0, 0, 0.96, 0, 0, 0, 0, 0.12, 0.32, 0.0, 0.02, 0.0, 0.0, 0.62], "浆果": [0.52, 0.46, 0.64, 0.76, 0, 0, 0.95, 0, 0, 0, 0, 0.1, 0.28, 0.0, 0.02, 0.0, 0.0, 0.46], "莓果": [0.52, 0.46, 0.64, 0.76, 0, 0, 0.95, 0, 0, 0, 0, 0.1, 0.28, 0.0, 0.02, 0.0, 0.0, 0.44], "铃兰": [0.82, 0.28, 0.54, 0.18, 0.32, 0.86, 0, 0, 0, 0, 0, 0.14, 0.9, 0.42, 0.04, 0.0, 0.0, 0.0], "烟熏感": [0.1, 0.56, 0.06, 0.04, 0, 0, 0, 0.46, 0.98, 0, 0, 0.02, 0.08, 0.0, 0.01, 0.2, 0.05, 0.0], "皮革": [0.12, 0.6, 0.08, 0.05, 0, 0, 0, 0.58, 0.62, 0, 0, 0.08, 0.06, 0.0, 0.03, 0.18, 0.12, 0.0], "木质香": [0.28, 0.48, 0.1, 0.08, 0, 0, 0, 0.96, 0, 0, 0, 0.07, 0.24, 0.01, 0.03, 0.24, 0.02, 0.0], "苔藓": [0.2, 0.26, 0.62, 0.04, 0.68, 0, 0, 0.48, 0, 0, 0, 0.08, 0.2, 0.01, 0.03, 0.1, 0.1, 0.0], "桂花": [0.62, 0.68, 0.28, 0.52, 0.16, 0.9, 0.72, 0.08, 0, 0.05, 0.18, 0.34, 0.42, 0.05, 0.08, 0.02, 0.0, 0.02], "黄杏": [0.62, 0.68, 0.4, 0.74, 0.06, 0.06, 0.97, 0, 0, 0, 0.26, 0.18, 0.3, 0.02, 0.04, 0.0, 0.0, 0.03], "黄葵子": [0.42, 0.62, 0.18, 0.24, 0.1, 0, 0, 0.12, 0, 0.88, 0.28, 0.5, 0.38, 0.08, 0.1, 0.03, 0.0, 0.0]};
+const products=[{"name": "夏日离别练习", "top": "绿叶、杏子", "heart": "栀子、茉莉、奶油", "base": "香草、麝香"}, {"name": "一叶扁舟", "top": "绿叶、木兰", "heart": "绿茶、水生花、茉莉", "base": "木香、苔香、雪松"}, {"name": "一碗月光", "top": "芳香、绿意、柑橘调", "heart": "雪松、花香、松木", "base": "木质、琥珀"}, {"name": "银河系中心调杯酒", "top": "柠檬、罗勒、丁香、蓝莓", "heart": "茉莉、玫瑰、薰衣草", "base": "麝香、广藿香、黑香豆"}, {"name": "当萨特与海德格尔干杯", "top": "柠檬、柑橘", "heart": "葡萄、浆果、莓果", "base": "雪松、香草、铃兰"}, {"name": "点香化堂前风", "top": "薰衣草、松木、琥珀", "heart": "烟熏感、皮革", "base": "雪松、木质香、苔藓"}, {"name": "走到桂花落肩头", "top": "绿叶、柑橘", "heart": "桂花、黄杏", "base": "黄葵子、雪松"}];
+const cn={brightness:"明亮",warmth:"暖感",wetness:"湿润",sweetness:"甜润",greenness:"青绿",floral:"花香",fruity:"果香",woody:"木质",smoky:"烟熏",musky:"麝香/肌肤",creamy:"奶油感",powderiness:"脂粉感",airiness:"通透"};
+const texCn={soapy:"皂感",waxy:"蜡感",resinous:"树脂感",medicinal:"药感",boozy:"酒感"};
+const weights={top:.30,heart:.45,base:.25};
+
+const el={
+ preset:document.getElementById("preset"),
+ name:document.getElementById("name"),
+ top:document.getElementById("top"),
+ heart:document.getElementById("heart"),
+ base:document.getElementById("base"),
+ btn:document.getElementById("generateBtn"),
+ result:document.getElementById("result")
+};
+
+products.forEach((p,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=p.name;el.preset.appendChild(o)});
+
+function splitNotes(s){return String(s||"").replace(/[，、/|]/g,",").split(",").map(x=>x.trim()).filter(Boolean)}
+function avg(list){
+ let known=list.filter(n=>Array.isArray(O[n])),unknown=list.filter(n=>!Array.isArray(O[n]));
+ let main=Array(dims.length).fill(0), tex=Array(textureDims.length).fill(0);
+ if(known.length){
+   known.forEach(n=>{
+     const arr=O[n];
+     dims.forEach((d,i)=>main[i]+=arr[i]/known.length);
+     textureDims.forEach((d,i)=>tex[i]+=arr[dims.length+i]/known.length);
+   });
+ }
+ return {main,tex,known,unknown};
+}
+function lab(v,a,b,c){return v<.34?a:(v<.67?b:c)}
+function phrase(a){return dims.map((d,i)=>[d,a[i]]).sort((x,y)=>y[1]-x[1]).slice(0,4).filter(x=>x[1]>=.35).map(x=>cn[x[0]]).join("、")||"整体较轻"}
+function powderText(v){
+ if(v<.20)return "脂粉感很低：基本不会往粉盒、化妆粉或柔雾粉质方向走。";
+ if(v<.40)return "脂粉感轻微：可能有一点柔雾和干爽粉质，但不是主角。";
+ if(v<.60)return "有可感知的脂粉感：会让香气显得更柔和、细腻，带一点化妆粉盒式质地。";
+ return "脂粉感明显：容易联想到粉盒、化妆台、干爽柔雾或经典粉质香水。";
+}
+function textureLevel(v){return v>=.68?"明显":(v>=.45?"中等":"轻微")}
+function textureTags(texObj){
+ const items=textureDims.map(d=>[d,texObj[d]]).filter(x=>x[1]>=.28).sort((a,b)=>b[1]-a[1]);
+ if(!items.length)return '<div class="texture-empty">没有特别突出的第二层材质标签；这款更多由主感知维度决定。</div>';
+ return '<div class="texture-tags">'+items.map(([d,v])=>`<div class="texture-tag"><strong>${texCn[d]}</strong><span>${textureLevel(v)} · ${(v*10).toFixed(1)}</span></div>`).join("")+'</div>';
+}
+function humanFeedback(o,strong,texObj){
+ let s=`这款香气首先给人的方向是${strong.slice(0,3).join("、")||"轻柔"}。`;
+ if(o.floral>.65)s+=" 花香是明显主体。";
+ if(o.fruity>.62)s+=" 果香存在感比较清楚。";
+ if(o.woody>.58)s+=" 木质骨架会比较明显。";
+ if(o.greenness>.52)s+=" 有叶片、茶感或草本式青绿感。";
+ if(o.smoky>.48)s+=" 会带烟熏、旧木或皮革式暗感。";
+ if(o.powderiness>.52)s+=" 同时有明显脂粉/柔雾质地。";
+ else if(o.powderiness>.34)s+=" 还会带一点轻微的粉质柔雾。";
+ const topTex=textureDims.map(d=>[d,texObj[d]]).sort((a,b)=>b[1]-a[1])[0];
+ if(topTex && topTex[1]>=.45)s+=` 第二层材质里，${texCn[topTex[0]]}会比较突出。`;
+ return s;
+}
+function analogy(o,strong,texObj){
+ if(o.powderiness>.58 && o.floral>.5)return "像打开一只旧式化妆粉盒：花香被磨成柔雾状，干爽、细腻，带一点贴肤的粉质感。";
+ if(texObj.boozy>.5 && o.fruity>.45)return "像一杯带果香的低度调酒：有汁液感，也有一点发酵与酒气的联想。";
+ if(texObj.resinous>.55 && o.woody>.45)return "像温热木材上残留的树脂与香脂，颜色偏深，质地更稠、更暖。";
+ if(texObj.soapy>.5 && o.floral>.4)return "像刚洗净的白色织物和花瓣，带一点干净皂感。";
+ if(texObj.medicinal>.45)return "像草本、辛香和药柜之间的交界，带一点清苦或药感。";
+ if(o.smoky>.5 && o.woody>.5)return "像旧木空间里残留的烟与皮革，偏暗、偏干，材质感很强。";
+ if(o.wetness>.6 && o.greenness>.45)return "像雨后植物、茶园或水边木头，带明显水汽与青绿感。";
+ if(o.floral>.6 && o.fruity>.55)return "像花瓣和成熟果实叠在一起，明亮、柔软，带自然甜感。";
+ if(o.woody>.6 && o.airiness>.45)return "像冷空气里的浅色木材或针叶林，木质但不闷。";
+ if(o.fruity>.65)return "像刚打开的果汁、果酒或成熟浆果，果香是最直观的入口。";
+ return "像一个由"+(strong.slice(0,3).join("、")||"轻柔香气")+"构成的整体气味场景。";
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+function run(){
+ try {
+   const phase={
+     top:avg(splitNotes(el.top.value)),
+     heart:avg(splitNotes(el.heart.value)),
+     base:avg(splitNotes(el.base.value))
+   };
+   const overall=Array(dims.length).fill(0), texOverall=Array(textureDims.length).fill(0);
+   ["top","heart","base"].forEach(k=>{
+     phase[k].main.forEach((v,i)=>overall[i]+=weights[k]*v);
+     phase[k].tex.forEach((v,i)=>texOverall[i]+=weights[k]*v);
+   });
+   const obj=Object.fromEntries(dims.map((d,i)=>[d,overall[i]]));
+   const texObj=Object.fromEntries(textureDims.map((d,i)=>[d,texOverall[i]]));
+   const labels={
+     temperature:lab(obj.warmth,"偏冷","中性","偏暖"),
+     humidity:lab(obj.wetness,"偏干","中等","偏湿润"),
+     brightness:lab(obj.brightness,"偏暗","中等","偏亮"),
+     sweetness:lab(obj.sweetness,"低甜","微甜","偏甜"),
+     airiness:lab(obj.airiness,"厚实","中等","通透")
+   };
+   const strong=dims.map((d,i)=>[d,overall[i]]).sort((a,b)=>b[1]-a[1]).slice(0,6).filter(x=>x[1]>=.38).map(x=>cn[x[0]]);
+   const unknown=[...new Set([...phase.top.unknown,...phase.heart.unknown,...phase.base.unknown])];
+   const known=[...phase.top.known,...phase.heart.known,...phase.base.known];
+   const coverage=(known.length+unknown.length)?known.length/(known.length+unknown.length):0;
+   const scene=`${labels.brightness}、${labels.temperature}、${labels.humidity}；主要呈现${strong.slice(0,4).join("、")||"轻柔香气"}，整体${labels.airiness}。`;
+
+   el.result.innerHTML=`
+    <div class="hero">
+      <h2 class="hero-title">${esc(el.name.value||"未命名香气")}</h2>
+      <p class="hero-copy">${scene}</p>
+      <div class="badges">
+       <span class="badge">${labels.temperature}</span><span class="badge">${labels.humidity}</span>
+       <span class="badge">${labels.brightness}</span><span class="badge">${labels.sweetness}</span>
+       <span class="badge">${labels.airiness}</span><span class="badge">脂粉感 ${(obj.powderiness*10).toFixed(1)}/10</span>
+      </div>
+    </div>
+    <div class="section"><h3>第一感受</h3><div class="first">${humanFeedback(obj,strong,texObj)}</div></div>
+    <div class="section"><h3>前 · 中 · 后</h3>
+      <div class="timeline">
+        <div class="phase"><div class="en">Top</div><b>前调</b>${phrase(phase.top.main)}</div>
+        <div class="phase"><div class="en">Heart</div><b>中调</b>${phrase(phase.heart.main)}</div>
+        <div class="phase"><div class="en">Base</div><b>后调</b>${phrase(phase.base.main)}</div>
+      </div>
+    </div>
+    <div class="section"><h3>感知轮廓</h3>
+      <div class="profile-grid">
+      ${dims.map((d,i)=>`<div class="bar ${d==="powderiness"?"powder":""}">
+        <span class="label">${cn[d]}</span>
+        <div class="track"><div class="fill" style="width:${Math.round(overall[i]*100)}%"></div></div>
+        <span>${(overall[i]*10).toFixed(1)}</span>
+      </div>`).join("")}
+      </div>
+      <div class="powder-note"><b>脂粉感：</b>${powderText(obj.powderiness)}</div>
+    </div>
+    <div class="section"><h3>Texture Tags · 第二层材质标签</h3>
+      <div class="texture-box">${textureTags(texObj)}</div>
+    </div>
+    <div class="section"><h3>一句话像什么</h3><div class="analogy">${analogy(obj,strong,texObj)}</div></div>
+    <div class="meta">词库覆盖率：${Math.round(coverage*100)}%。Texture Tags 是第二层感知提示，不代表实际配方浓度。</div>
+    ${unknown.length?`<div class="warn">未收录香调：${unknown.join("、")}</div>`:""}
+   `;
+ } catch(err) {
+   el.result.innerHTML='<div class="warn">生成失败：'+esc(err && err.message ? err.message : String(err))+'</div>';
+   console.error(err);
+ }
+}
+
+window.__scentRun = run;
+const statusEl=document.getElementById("runtimeStatus");
+if(statusEl){statusEl.textContent="✓ 交互脚本已加载，可以点击按钮生成结果。";statusEl.style.background="#e9f4ea";statusEl.style.color="#46634a";}
+el.btn.addEventListener("click", run);
+el.preset.addEventListener("change", function(){
+ if(el.preset.value==="") return;
+ const p=products[Number(el.preset.value)];
+ el.name.value=p.name; el.top.value=p.top; el.heart.value=p.heart; el.base.value=p.base;
+ run();
+});
+
+run();
+})();
+</script>
+</body>
+</html>
